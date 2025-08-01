@@ -80,6 +80,9 @@ export function setupMessageHandlers(chrome) {
     } else if (request.action === "getEarlyHints") {
       handleGetEarlyHints(request, sendResponse)
       return true
+    } else if (request.action === "getCurrentTabEarlyHints") {
+      handleGetCurrentTabEarlyHints(request, sendResponse, chrome)
+      return true
     }
     return true
   })
@@ -153,6 +156,28 @@ function handleGetEarlyHints(request, sendResponse) {
   const earlyHintsData = getTabEarlyHints(request.tabId)
   console.log("🚀 [Early Hints] Retrieving Early Hints data for tab:", request.tabId, earlyHintsData ? "✅ found" : "❌ not found")
   sendResponse(earlyHintsData)
+}
+
+/**
+ * Handles Early Hints data requests for current tab (from content script)
+ * @param {Object} request - The request object
+ * @param {Function} sendResponse - The response callback
+ * @param {Object} chrome - Chrome API object
+ */
+function handleGetCurrentTabEarlyHints(request, sendResponse, chrome) {
+  // Get the current active tab and return its Early Hints data
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
+      console.log("No active tab found for Early Hints request")
+      sendResponse(null)
+      return
+    }
+
+    const tabId = tabs[0].id
+    const earlyHintsData = getTabEarlyHints(tabId)
+    console.log("🚀 [Early Hints] Retrieving Early Hints data for current tab:", tabId, earlyHintsData ? "✅ found" : "❌ not found")
+    sendResponse(earlyHintsData)
+  })
 }
 
 /**

@@ -123,26 +123,16 @@ export function getPreloadedImages() {
  */
 async function getEarlyHintsFromBackground() {
   return new Promise((resolve) => {
-    // Get current tab ID first
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
+    // Send message to background to get Early Hints data for current tab
+    chrome.runtime.sendMessage({ action: "getCurrentTabEarlyHints" }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.debug("Error getting Early Hints data:", chrome.runtime.lastError)
         resolve(null)
         return
       }
 
-      const tabId = tabs[0].id
-
-      // Get Early Hints data for current tab
-      chrome.runtime.sendMessage({ action: "getEarlyHints", tabId: tabId }, (earlyHintsData) => {
-        if (chrome.runtime.lastError) {
-          console.debug("Error getting Early Hints data:", chrome.runtime.lastError)
-          resolve(null)
-          return
-        }
-
-        console.log("🚀 [Early Hints] Retrieved data from background:", earlyHintsData)
-        resolve(earlyHintsData)
-      })
+      console.log("🚀 [Early Hints] Retrieved data from background:", response)
+      resolve(response)
     })
   })
 }
@@ -180,104 +170,28 @@ function checkEarlyHintsStatus(url, earlyHintsData) {
 }
 
 /**
- * Checks if a URL is an image resource
+ * Checks if a URL is a font resource
  * @param {string} url - URL to check
- * @returns {boolean} True if URL appears to be an image
+ * @returns {boolean} True if URL appears to be a font
  */
-function isImageUrl(url) {
-  return url.match(/\.(jpg|jpeg|png|gif|webp|avif|svg)(\?.*)?$/i) !== null
+function isFontUrl(url) {
+  return url.match(/\.(woff2?|ttf|otf|eot)($|\?)/i) !== null
 }
 
 /**
- * Highlights an image on the page
- * @param {string} imageUrl - The URL of the image to highlight
- * @returns {boolean} True if image was found and highlighted
+ * Gets the font type from a URL
+ * @param {string} url - The font URL
+ * @returns {string} The font type
  */
-export function highlightImageOnPage(imageUrl) {
-  removeImageHighlights()
-
-  const images = document.querySelectorAll("img")
-  let targetImage = null
-
-  for (const img of images) {
-    if (img.src === imageUrl || img.currentSrc === imageUrl) {
-      targetImage = img
-      break
-    }
+function getFontType(url) {
+  const extension = url.split(".").pop().split("?")[0].toLowerCase()
+  const typeMap = {
+    woff2: "WOFF2",
+    woff: "WOFF",
+    ttf: "TTF",
+    otf: "OTF",
+    eot: "EOT",
+    svg: "SVG",
   }
-
-  if (!targetImage) {
-    const allElements = document.querySelectorAll("*")
-    for (const element of allElements) {
-      const computedStyle = window.getComputedStyle(element)
-      const backgroundImage = computedStyle.backgroundImage
-      if (backgroundImage && backgroundImage.includes(imageUrl)) {
-        targetImage = element
-        break
-      }
-    }
-  }
-
-  if (targetImage) {
-    const highlight = document.createElement("div")
-    highlight.id = "bigscoots-image-highlight"
-    highlight.style.cssText = `
-      position: absolute;
-      pointer-events: none;
-      z-index: 999999;
-      border: 3px solid #ff4444;
-      background: rgba(255, 68, 68, 0.1);
-      box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.3), 0 0 20px rgba(255, 68, 68, 0.5);
-      animation: bigscoots-pulse 2s infinite;
-      border-radius: 4px;
-    `
-
-    if (!document.getElementById("bigscoots-highlight-styles")) {
-      const style = document.createElement("style")
-      style.id = "bigscoots-highlight-styles"
-      style.textContent = `
-        @keyframes bigscoots-pulse {
-          0% { box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.3), 0 0 20px rgba(255, 68, 68, 0.5); }
-          50% { box-shadow: 0 0 0 6px rgba(255, 68, 68, 0.5), 0 0 30px rgba(255, 68, 68, 0.8); }
-          100% { box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.3), 0 0 20px rgba(255, 68, 68, 0.5); }
-        }
-      `
-      document.head.appendChild(style)
-    }
-
-    const rect = targetImage.getBoundingClientRect()
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
-
-    highlight.style.top = rect.top + scrollTop - 3 + "px"
-    highlight.style.left = rect.left + scrollLeft - 3 + "px"
-    highlight.style.width = rect.width + 6 + "px"
-    highlight.style.height = rect.height + 6 + "px"
-
-    document.body.appendChild(highlight)
-
-    targetImage.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "center",
-    })
-
-    setTimeout(() => {
-      removeImageHighlights()
-    }, 5000)
-
-    return true
-  }
-
-  return false
-}
-
-/**
- * Removes image highlights from the page
- */
-function removeImageHighlights() {
-  const existingHighlight = document.getElementById("bigscoots-image-highlight")
-  if (existingHighlight) {
-    existingHighlight.remove()
-  }
+  return typeMap[extension] || "Unknown"
 }

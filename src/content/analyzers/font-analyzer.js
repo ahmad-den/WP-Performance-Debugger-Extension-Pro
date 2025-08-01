@@ -97,24 +97,16 @@ export function getLoadedAndPreloadedFonts() {
  */
 async function getEarlyHintsFromBackground() {
   return new Promise((resolve) => {
-    // Get current tab ID
-    chrome.runtime.sendMessage({ action: "getCurrentTabId" }, (response) => {
-      if (chrome.runtime.lastError || !response || !response.tabId) {
+    // Send message to background to get current tab ID and Early Hints data
+    chrome.runtime.sendMessage({ action: "getCurrentTabEarlyHints" }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.debug("Error getting Early Hints data:", chrome.runtime.lastError)
         resolve(null)
         return
       }
 
-      // Get Early Hints data for current tab
-      chrome.runtime.sendMessage({ action: "getEarlyHints", tabId: response.tabId }, (earlyHintsData) => {
-        if (chrome.runtime.lastError) {
-          console.debug("Error getting Early Hints data:", chrome.runtime.lastError)
-          resolve(null)
-          return
-        }
-
-        console.log("🚀 [Early Hints] Retrieved data from background:", earlyHintsData)
-        resolve(earlyHintsData)
-      })
+      console.log("🚀 [Early Hints] Retrieved data from background:", response)
+      resolve(response)
     })
   })
 }
