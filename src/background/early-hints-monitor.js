@@ -58,6 +58,8 @@ function handleHttpResponse(details) {
   // Skip if no tab ID (background requests)
   if (tabId === -1) return
 
+  console.log(`🔍 [Early Hints] Analyzing HTTP response: ${statusCode} ${type} ${url}`)
+
   try {
     const urlObj = new URL(url)
     const domain = urlObj.hostname
@@ -96,8 +98,8 @@ function handleHttpResponse(details) {
       checkForEarlyHintsIndicators(responseHeaders, tabData, url)
     }
 
-    // Method 3: Analyze resource timing for Early Hints characteristics
-    if (type === "font" || type === "image") {
+    // Method 3: Analyze resource timing for Early Hints characteristics  
+    if ((type === "font" || type === "image") && responseHeaders) {
       analyzeResourceForEarlyHints(details, tabData)
     }
 

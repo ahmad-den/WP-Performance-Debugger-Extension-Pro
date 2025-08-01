@@ -83,6 +83,9 @@ export function setupMessageHandlers(chrome) {
     } else if (request.action === "getCurrentTabEarlyHints") {
       handleGetCurrentTabEarlyHints(request, sendResponse, chrome)
       return true
+    } else if (request.action === "getTabEarlyHints") {
+      handleGetTabEarlyHints(request, sendResponse)
+      return true
     }
     return true
   })
@@ -147,12 +150,13 @@ export function setupMessageHandlers(chrome) {
   })
 }
 
+
 /**
- * Handles Early Hints data requests
+ * Handles Early Hints data requests for specific tab
  * @param {Object} request - The request object
  * @param {Function} sendResponse - The response callback
  */
-function handleGetEarlyHints(request, sendResponse) {
+function handleGetTabEarlyHints(request, sendResponse) {
   const earlyHintsData = getTabEarlyHints(request.tabId)
   console.log("🚀 [Early Hints] Retrieving Early Hints data for tab:", request.tabId, earlyHintsData ? "✅ found" : "❌ not found")
   sendResponse(earlyHintsData)

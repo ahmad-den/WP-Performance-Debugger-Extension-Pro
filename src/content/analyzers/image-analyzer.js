@@ -131,7 +131,7 @@ async function getEarlyHintsFromBackground() {
         return
       }
 
-      console.log("🚀 [Early Hints] Retrieved data from background:", response)
+      console.log("🚀 [Early Hints] Image analyzer retrieved data from background:", response)
       resolve(response)
     })
   })

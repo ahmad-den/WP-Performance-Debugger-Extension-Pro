@@ -97,7 +97,7 @@ export function getLoadedAndPreloadedFonts() {
  */
 async function getEarlyHintsFromBackground() {
   return new Promise((resolve) => {
-    // Send message to background to get current tab ID and Early Hints data
+    // Send message to background to get Early Hints data for current tab
     chrome.runtime.sendMessage({ action: "getCurrentTabEarlyHints" }, (response) => {
       if (chrome.runtime.lastError) {
         console.debug("Error getting Early Hints data:", chrome.runtime.lastError)
@@ -105,7 +105,7 @@ async function getEarlyHintsFromBackground() {
         return
       }
 
-      console.log("🚀 [Early Hints] Retrieved data from background:", response)
+      console.log("🚀 [Early Hints] Font analyzer retrieved data from background:", response)
       resolve(response)
     })
   })
