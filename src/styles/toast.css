@@ -1,0 +1,191 @@
+/* Toast notification system styles */
+#toast-container {
+    position: fixed !important;
+    z-index: 10000 !important;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 320px;
+    padding: 8px;
+    top: 8px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  /* Compact Toast Element */
+  .toast-compact {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transform: translateY(-20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    max-width: 100%;
+    min-width: 200px;
+  }
+  
+  .toast-compact.toast-show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  .toast-compact.toast-hide {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  
+  /* Compact Toast Content */
+  .toast-content-compact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    position: relative;
+    min-height: 36px;
+  }
+  
+  .toast-message-compact {
+    flex: 1;
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  
+  .toast-icon-compact {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .toast-dismiss-compact {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+  
+  .toast-dismiss-compact:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+    opacity: 1;
+  }
+  
+  /* Compact Progress Bar */
+  .toast-progress-compact {
+    height: 2px;
+    background: rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .toast-progress-compact::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--primary-color);
+    width: 100%;
+    transform: translateX(-100%);
+  }
+  
+  /* Compact Toast Type Colors */
+  .toast-compact.toast-success .toast-icon-compact {
+    color: var(--success-bg-strong);
+  }
+  
+  .toast-compact.toast-success .toast-progress-compact::before {
+    background: var(--success-bg-strong);
+  }
+  
+  .toast-compact.toast-error .toast-icon-compact {
+    color: var(--error-bg-strong);
+  }
+  
+  .toast-compact.toast-error .toast-progress-compact::before {
+    background: var(--error-bg-strong);
+  }
+  
+  .toast-compact.toast-warning .toast-icon-compact {
+    color: var(--warning-bg-strong);
+  }
+  
+  .toast-compact.toast-warning .toast-progress-compact::before {
+    background: var(--warning-bg-strong);
+  }
+  
+  .toast-compact.toast-info .toast-icon-compact {
+    color: var(--info-bg-strong);
+  }
+  
+  .toast-compact.toast-info .toast-progress-compact::before {
+    background: var(--info-bg-strong);
+  }
+  
+  /* Smart positioning for different screen sizes */
+  @media (max-width: 400px) {
+    #toast-container {
+      max-width: calc(100vw - 16px);
+      left: 8px !important;
+      right: 8px !important;
+      transform: none !important;
+    }
+  
+    .toast-message-compact {
+      max-width: calc(100vw - 80px);
+    }
+  }
+  
+  /* Keep original toast styles for non-compact toasts */
+  .toast:not(.toast-compact) {
+    pointer-events: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+  
+  .toast:not(.toast-compact).toast-show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  
+  .toast:not(.toast-compact).toast-hide {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  

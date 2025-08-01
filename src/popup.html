@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+<div class="header">
+ <div class="header-main">
+   <div class="title-container">
+     <img src="icon48.png" alt="BigScoots Logo" class="logo">
+     <div>
+       <h1 class="title">BigScoots Performance Debugger</h1>
+       <p class="subtitle">Analyze cache, CDN, images, and fonts</p>
+     </div>
+   </div>
+   <!-- Window Controls -->
+   <div class="window-controls">
+     <button class="window-toggle-btn">
+       <span class="window-toggle-icon">
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+       </span>
+     </button>
+   </div>
+ </div>
+ <!-- Current URL Display -->
+ <div class="current-url" id="currentUrl">
+   <span class="current-url-label">Analyzing:</span>
+   <span class="current-url-value" id="currentUrlValue">Loading...</span>
+ </div>
+</div>
+
+<div class="tabs">
+ <button class="tab active" id="imageAnalyzerTab">
+   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+   Images
+ </button>
+ <button class="tab" id="fontAnalyzerTab">
+   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><polyline points="9 20 15 20"></polyline><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+   Fonts
+ </button>
+ <button class="tab" id="headerAnalyzerTab">
+   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+   Headers
+ </button>
+ <button class="tab" id="insightsTab">
+   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H1l6-6 6 6z"></path><path d="m22 12-4-4-4 4"></path><path d="M16 16h6l-6 6-6-6z"></path><path d="m2 12 4 4 4-4"></path></svg>
+   Insights
+ </button>
+ <button class="tab" id="perfmattersDebugTab">
+   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9.09 9.09 5.83 5.83M14.92 9.09l-5.83 5.83"></path></svg>
+   Debug
+ </button>
+</div>
+
+<div id="imageAnalyzerContent" class="content active">
+ <div id="imageInfo" class="analysis-results">
+   <p id="imageCount" class="count-badge"></p>
+   <ul id="imageList" class="result-list scrollable-content"></ul>
+ </div>
+</div>
+
+<div id="fontAnalyzerContent" class="content">
+ <div id="fontInfo" class="analysis-results">
+   <p id="fontCount" class="count-badge"></p>
+   <ul id="fontList" class="result-list scrollable-content"></ul>
+ </div>
+</div>
+
+<div id="headerAnalyzerContent" class="content">
+ <div id="headerInfo" class="analysis-results scrollable-content">
+   <div class="header-group">
+     <h3 class="header-group-title">Cache Information</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">x-bigscoots-cache-status:</span>
+         <span id="x-bigscoots-cache-status" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">cf-cache-status:</span>
+         <span id="cf-cache-status" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-bigscoots-cache-plan:</span>
+         <span id="x-bigscoots-cache-plan" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-bigscoots-cache-mode:</span>
+         <span id="x-bigscoots-cache-mode" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+   <div class="header-group">
+     <h3 class="header-group-title">Hosting Information</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">x-hosted-by:</span>
+         <span id="x-hosted-by" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-ezoic-cdn:</span>
+         <span id="x-ezoic-cdn" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-np-cfe:</span>
+         <span id="x-np-cfe" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+   <div class="header-group">
+     <h3 class="header-group-title advertising">Advertising</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">Ad Provider:</span>
+         <span id="adprovider" class="header-value" data-provider="N/A">N/A</span>
+       </li>
+     </ul>
+   </div>
+ 
+   <div class="header-group">
+     <h3 class="header-group-title">Performance Optimization</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">Content-Encoding:</span>
+         <span id="content-encoding" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">Perfmatters RUCSS:</span>
+         <span id="perfmattersrucss" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">Perfmatters Delay JS:</span>
+         <span id="perfmattersdelayjs" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+   <div class="header-group">
+     <h3 class="header-group-title">Analytics</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">GTM:</span>
+         <span id="gtm" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">UA:</span>
+         <span id="ua" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">GA4:</span>
+         <span id="ga4" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">GA:</span>
+         <span id="ga" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+ </div>
+</div>
+
+<div id="insightsContent" class="content">
+ <div class="insights-container">
+   <!-- Error container for insights -->
+   <div id="insightsErrorContainer" class="insights-error-message" style="display: none;"></div>
+   
+   <!-- Core Web Vitals with rectangular PSI button -->
+   <div class="core-web-vitals">
+     <div class="vitals-header">
+       <h3 class="section-title">
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+         Core Web Vitals
+       </h3>
+       <button id="analyzePSIBtn" class="psi-analyze-btn">
+         <div class="psi-btn-progress"></div>
+         <div class="psi-btn-content">
+           <svg class="psi-btn-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+           <span class="psi-btn-text">Analyze PSI</span>
+         </div>
+       </button>
+     </div>
+     
+     <!-- Dynamic Compact Legend -->
+     <div class="cwv-legend">
+       <div class="legend-item" data-type="local" style="display: none;">
+         <div class="legend-dot"></div>
+         <span class="legend-label">Local CWV</span>
+       </div>
+       <div class="legend-item" data-type="lab" style="display: none;">
+         <div class="legend-dot"></div>
+         <span class="legend-label">PSI Lab</span>
+       </div>
+       <div class="legend-item" data-type="field" style="display: none;">
+         <div class="legend-dot"></div>
+         <span class="legend-label">Field Data</span>
+       </div>
+     </div>
+     
+     <!-- CLS Monitor -->
+     <div class="vitals-metric">
+       <div class="metric-header">
+         <span class="metric-name">Cumulative Layout Shift (CLS)</span>
+       </div>
+       <div class="metric-threshold">
+         <div class="threshold-bar cls-bar">
+           <div class="threshold-segment good" style="flex: 0.4;"></div>
+           <div class="threshold-segment needs-improvement" style="flex: 0.3;"></div>
+           <div class="threshold-segment poor" style="flex: 0.3;"></div>
+         </div>
+       </div>
+       <div class="metric-values">
+         <div class="value-item local" id="clsLocalValue" style="display: flex;">
+           <div class="value-dot local-cwv"></div>
+           <span class="value-text">Local: <span id="clsLocalText">0.000</span></span>
+         </div>
+         <div class="value-item psi" id="clsLabValue" style="display: none;">
+           <div class="value-dot psi-lab"></div>
+           <span class="value-text">Lab: <span id="clsLabText">-</span></span>
+         </div>
+         <div class="value-item field" id="clsFieldValue" style="display: none;">
+           <div class="value-dot field-data"></div>
+           <span class="value-text">Field: <span id="clsFieldText">-</span></span>
+         </div>
+       </div>
+       <div class="metric-loading" style="display: none;">
+         <div class="loading-spinner"></div>
+         <span>Analyzing CLS...</span>
+       </div>
+       
+       <!-- CLS Element Preview -->
+       <div class="cls-element-preview" id="clsElementPreview" style="display: none;">
+         <div class="element-preview-header">
+           <span class="element-title">Layout Shift Source:</span>
+           <span class="element-tag" id="clsElementTag">-</span>
+         </div>
+         <div class="element-preview-content">
+           <div class="element-preview-image" id="clsElementImage">
+             <div class="preview-placeholder">No preview available</div>
+           </div>
+           <div class="element-details-compact">
+             <div class="detail-row">
+               <span class="detail-label">Shift Value:</span>
+               <span class="detail-value" id="clsShiftValue">-</span>
+             </div>
+             <div class="detail-row">
+               <span class="detail-label">Dimensions:</span>
+               <span class="detail-value" id="clsElementDimensions">-</span>
+             </div>
+             <div class="detail-row">
+               <span class="detail-label">Position:</span>
+               <span class="detail-value" id="clsElementPosition">-</span>
+             </div>
+             <div class="detail-row" id="clsElementClassesContainer" style="display: none;">
+               <span class="detail-label">Classes:</span>
+               <span class="detail-value" id="clsElementClasses">-</span>
+             </div>
+             <div class="detail-row" id="clsElementSelectorContainer" style="display: none;">
+               <span class="detail-label">Selector:</span>
+               <span class="detail-value" id="clsElementSelector">-</span>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+     <!-- LCP Monitor -->
+     <div class="vitals-metric">
+       <div class="metric-header">
+         <span class="metric-name">Largest Contentful Paint (LCP)</span>
+       </div>
+       <div class="metric-threshold">
+         <div class="threshold-bar lcp-bar">
+           <div class="threshold-segment good" style="flex: 0.31;"></div>
+           <div class="threshold-segment needs-improvement" style="flex: 0.19;"></div>
+           <div class="threshold-segment poor" style="flex: 0.5;"></div>
+         </div>
+       </div>
+       <div class="metric-values">
+         <div class="value-item local" id="lcpLocalValue" style="display: flex;">
+           <div class="value-dot local-cwv"></div>
+           <span class="value-text">Local: <span id="lcpLocalText">0ms</span></span>
+         </div>
+         <div class="value-item psi" id="lcpLabValue" style="display: none;">
+           <div class="value-dot psi-lab"></div>
+           <span class="value-text">Lab: <span id="lcpLabText">-</span></span>
+         </div>
+         <div class="value-item field" id="lcpFieldValue" style="display: none;">
+           <div class="value-dot field-data"></div>
+           <span class="value-text">Field: <span id="lcpFieldText">-</span></span>
+         </div>
+       </div>
+       <div class="metric-loading" style="display: none;">
+         <div class="loading-spinner"></div>
+         <span>Analyzing LCP...</span>
+       </div>
+       
+       <!-- LCP Element Preview -->
+       <div class="lcp-element-preview" id="lcpElementPreview" style="display: none;">
+         <div class="element-preview-header">
+           <span class="element-title">LCP Element:</span>
+           <span class="element-tag" id="lcpElementTag">-</span>
+         </div>
+         <div class="element-preview-content">
+           <div class="element-preview-image" id="lcpElementImage">
+             <div class="preview-placeholder">No preview available</div>
+           </div>
+           <div class="element-details">
+             <div class="detail-item">
+               <span class="detail-label">Dimensions:</span>
+               <span class="detail-value" id="lcpElementDimensions">-</span>
+             </div>
+             <div class="detail-item">
+               <span class="detail-label">Position:</span>
+               <span class="detail-value" id="lcpElementPosition">-</span>
+             </div>
+             <div class="detail-item" id="lcpElementClassesContainer" style="display: none;">
+               <span class="detail-label">Classes:</span>
+               <span class="detail-value" id="lcpElementClasses">-</span>
+             </div>
+             <div class="detail-item" id="lcpElementSelectorContainer" style="display: none;">
+               <span class="detail-label">Selector:</span>
+               <span class="detail-value" id="lcpElementSelector">-</span>
+             </div>
+             <div class="detail-item" id="lcpElementSrcContainer" style="display: none;">
+               <span class="detail-label">Source:</span>
+               <span class="detail-value" id="lcpElementSrc">-</span>
+             </div>
+             <div class="detail-item" id="lcpElementTextContainer" style="display: none;">
+               <span class="detail-label">Text:</span>
+               <span class="detail-value" id="lcpElementText">-</span>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+     <!-- INP Monitor -->
+     <div class="vitals-metric">
+       <div class="metric-header">
+         <span class="metric-name">Interaction to Next Paint (INP)</span>
+       </div>
+       <div class="metric-threshold">
+         <div class="threshold-bar inp-bar">
+           <div class="threshold-segment good" style="flex: 0.25;"></div>
+           <div class="threshold-segment needs-improvement" style="flex: 0.375;"></div>
+           <div class="threshold-segment poor" style="flex: 0.375;"></div>
+         </div>
+       </div>
+       <div class="metric-values">
+         <div class="value-item local" id="inpLocalValue" style="display: flex;">
+           <div class="value-dot local-cwv"></div>
+           <span class="value-text">Local: <span id="inpLocalText">-</span></span>
+         </div>
+         <div class="value-item psi" id="inpLabValue" style="display: none;">
+           <div class="value-dot psi-lab"></div>
+           <span class="value-text">Lab: <span id="inpLabText">-</span></span>
+         </div>
+         <div class="value-item field" id="inpFieldValue" style="display: none;">
+           <div class="value-dot field-data"></div>
+           <span class="value-text">Field: <span id="inpFieldText">-</span></span>
+         </div>
+       </div>
+       <div class="metric-loading" style="display: none;">
+         <div class="loading-spinner"></div>
+         <span>Analyzing INP...</span>
+       </div>
+       <div class="inp-status" id="inpStatus">
+         <div class="inp-message">Click anywhere on the page to measure interaction responsiveness</div>
+       </div>
+       
+       <!-- INP Element Preview -->
+       <div class="inp-element-preview" id="inpElementPreview" style="display: none;">
+         <div class="element-preview-header">
+           <span class="element-title">INP Element:</span>
+           <span class="element-tag" id="inpElementTag">-</span>
+         </div>
+         <div class="element-preview-content">
+           <div class="element-preview-image" id="inpElementImage">
+             <div class="preview-placeholder">No preview available</div>
+           </div>
+           <div class="element-details-compact">
+             <div class="detail-row">
+               <span class="detail-label">Interaction:</span>
+               <span class="detail-value" id="inpInteractionType">-</span>
+             </div>
+             <div class="detail-row">
+               <span class="detail-label">Duration:</span>
+               <span class="detail-value" id="inpInteractionDuration">-</span>
+             </div>
+             <div class="detail-row">
+               <span class="detail-label">Dimensions:</span>
+               <span class="detail-value" id="inpElementDimensions">-</span>
+             </div>
+             <div class="detail-row">
+               <span class="detail-label">Position:</span>
+               <span class="detail-value" id="inpElementPosition">-</span>
+             </div>
+             <div class="detail-row" id="inpElementClassesContainer" style="display: none;">
+               <span class="detail-label">Classes:</span>
+               <span class="detail-value" id="inpElementClasses">-</span>
+             </div>
+             <div class="detail-row" id="inpElementSelectorContainer" style="display: none;">
+               <span class="detail-label">Selector:</span>
+               <span class="detail-value" id="inpElementSelector">-</span>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+     <!-- TTFB Monitor -->
+     <div class="vitals-metric">
+       <div class="metric-header">
+         <span class="metric-name">Time to First Byte (TTFB)</span>
+       </div>
+       <div class="metric-threshold">
+         <div class="threshold-bar ttfb-bar">
+           <div class="threshold-segment good" style="flex: 0.4;"></div>
+           <div class="threshold-segment needs-improvement" style="flex: 0.35;"></div>
+           <div class="threshold-segment poor" style="flex: 0.25;"></div>
+         </div>
+       </div>
+       <div class="metric-values">
+         <div class="value-item local" id="ttfbLocalValue" style="display: flex;">
+           <div class="value-dot local-cwv"></div>
+           <span class="value-text">Local: <span id="ttfbLocalText">0ms</span></span>
+         </div>
+         <div class="value-item psi" id="ttfbLabValue" style="display: none;">
+           <div class="value-dot psi-lab"></div>
+           <span class="value-text">Lab: <span id="ttfbLabText">-</span></span>
+         </div>
+         <div class="value-item field" id="ttfbFieldValue" style="display: none;">
+           <div class="value-dot field-data"></div>
+           <span class="value-text">Field: <span id="ttfbFieldText">-</span></span>
+         </div>
+       </div>
+       <div class="metric-loading" style="display: none;">
+         <div class="loading-spinner"></div>
+         <span>Analyzing TTFB...</span>
+       </div>
+     </div>
+   </div>
+
+   <!-- PSI Insights Container - Added after Core Web Vitals -->
+   <div id="psiInsightsContainer" class="psi-insights-container" style="display: none;">
+     <div class="psi-insights-header">
+       <h3 class="section-title">
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+         PageSpeed Insights
+       </h3>
+       <span class="insights-count" id="insightsCount">0 insights</span>
+     </div>
+     
+     <div class="psi-insights-loading" id="psiInsightsLoading" style="display: none;">
+       <div class="loading-spinner"></div>
+       <span>Loading insights...</span>
+     </div>
+     
+     <div class="psi-insights-error" id="psiInsightsError" style="display: none;">
+       Error loading insights
+     </div>
+     
+     <div class="psi-insights-empty" id="psiInsightsEmpty" style="display: none;">
+       No insights available
+     </div>
+     
+     <div class="psi-insights-list" id="psiInsightsList">
+       <!-- PSI insights will be populated here -->
+     </div>
+   </div>
+ </div>
+</div>
+
+<div id="perfmattersDebugContent" class="content">
+ <div class="debug-controls">
+   <div class="toggle-group">
+     <label class="toggle-container">
+       <span class="toggle-label">Disable Perfmatters</span>
+       <div class="toggle-wrapper">
+         <input type="checkbox" id="perfmattersoff" class="toggle-input">
+         <span class="toggle-slider"></span>
+       </div>
+     </label>
+     <label class="toggle-container">
+       <span class="toggle-label">Disable CSS Optimization</span>
+       <div class="toggle-wrapper">
+         <input type="checkbox" id="perfmatterscssoff" class="toggle-input">
+         <span class="toggle-slider"></span>
+       </div>
+     </label>
+     <label class="toggle-container">
+       <span class="toggle-label">Disable JS Optimization</span>
+       <div class="toggle-wrapper">
+         <input type="checkbox" id="perfmattersjsoff" class="toggle-input">
+         <span class="toggle-slider"></span>
+       </div>
+     </label>
+     <label class="toggle-container">
+       <span class="toggle-label">Disable Cache</span>
+       <div class="toggle-wrapper">
+         <input type="checkbox" id="nocache" class="toggle-input">
+         <span class="toggle-slider"></span>
+       </div>
+     </label>
+   </div>
+ </div>
+</div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

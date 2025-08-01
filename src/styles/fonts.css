@@ -1,0 +1,158 @@
+/* Font analyzer styles */
+.card-style.font-list-item {
+    background-color: var(--background-content);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color-light);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    margin-right: 0;
+  }
+  
+  .card-style.font-list-item:hover {
+    border-color: var(--primary-color-hover);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .font-list-item-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+    margin-right: 14px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  .font-list-item-content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .url-container {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    position: relative;
+  }
+  
+  .font-url {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    flex-grow: 1;
+    padding-right: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+  
+  .copy-button.icon-button-sm {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    color: var(--text-secondary);
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  }
+  
+  .copy-button.icon-button-sm:hover {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border-color: var(--primary-color-dark);
+    transform: scale(1.05);
+  }
+  
+  .copy-button.icon-button-sm:active {
+    background-color: var(--primary-color-dark);
+    transform: scale(0.98);
+  }
+  
+  .copy-button.icon-button-sm svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .copy-button.copied-feedback svg {
+    color: var(--success-bg-strong) !important;
+  }
+  
+  /* Status container */
+  .status-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  
+  /* Font type stickers */
+  .status-sticker.font-type {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  
+  .status-sticker.font-type-woff2 {
+    background-color: #2d5a2d;
+    color: white;
+  }
+  
+  .status-sticker.font-type-woff {
+    background-color: #1e4a6b;
+    color: white;
+  }
+  
+  .status-sticker.font-type-ttf {
+    background-color: #8b5a00;
+    color: white;
+  }
+  
+  .status-sticker.font-type-otf {
+    background-color: #8b5a00;
+    color: white;
+  }
+  
+  .status-sticker.font-type-eot {
+    background-color: #a04040;
+    color: white;
+  }
+  
+  .status-sticker.font-type-svg {
+    background-color: #a04040;
+    color: white;
+  }
+  
+  .status-sticker.font-type-unknown {
+    background-color: #6b6b6b;
+    color: white;
+  }
+  
+  /* Early Hints sticker - Premium performance feature */
+  .status-sticker.early-hints {
+    background-color: #7c3aed;
+    color: white;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: 1px solid #6d28d9;
+  }
+  

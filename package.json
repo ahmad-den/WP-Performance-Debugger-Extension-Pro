@@ -1,0 +1,42 @@
+{
+  "name": "new-bs-helper-extension",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "build:dev": "webpack --mode=development",
+    "build:analyze": "webpack --mode=production --env analyze=true",
+    "clean": "rimraf dist *.zip",
+    "watch": "webpack --mode=development --watch",
+    "zip": "node scripts/zip-extension.js",
+    "release": "npm run clean && npm run build && npm run zip",
+    "release:dev": "npm run clean && npm run build:dev && npm run zip -- --dev",
+    "version:patch": "node scripts/bump-version.js patch && npm run release",
+    "version:minor": "node scripts/bump-version.js minor && npm run release",
+    "version:major": "node scripts/bump-version.js major && npm run release",
+    "validate": "node scripts/validate-extension.js",
+    "prerelease": "npm run validate",
+    "notes": "node scripts/release-notes.js"
+  },
+  "keywords": ["chrome-extension", "performance", "bigscoots", "web-optimization"],
+  "author": "",
+  "license": "ISC",
+  "description": "BigScoots Performance Debugger - A comprehensive tool for analyzing website performance metrics including cache headers, CDN status, preloaded fonts and images, and various optimization features.",
+  "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "archiver": "^6.0.2",
+    "babel-loader": "^10.0.0",
+    "chalk": "^4.1.2",
+    "compression-webpack-plugin": "^11.1.0",
+    "copy-webpack-plugin": "^13.0.0",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.2",
+    "rimraf": "^5.0.10",
+    "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack": "^5.99.9",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^6.0.1"
+  }
+}

@@ -1,0 +1,94 @@
+/* Image analyzer styles */
+.image-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: var(--background-content);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color-light);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+  
+  .image-list-item:hover {
+    border-color: var(--primary-color-hover);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    background-color: var(--primary-color-light);
+  }
+  
+  .image-list-item .img-container {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    background-color: var(--background-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .image-list-item .img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .image-list-item .img-container .fallback-icon svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-tertiary);
+  }
+  
+  .image-list-item .info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .image-list-item .info-container .url {
+    word-break: break-all;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  
+  .image-list-item .info-container .details {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+  }
+  
+  /* Image optimization stickers */
+  .status-sticker.critical-path {
+    background-color: #d4691a;
+    color: white;
+    font-weight: 700;
+  }
+  
+  .status-sticker.non-critical {
+    background-color: #6b6b6b;
+    color: white;
+  }
+  
+  .status-sticker.above-fold {
+    background-color: #2d5a2d;
+    color: white;
+  }
+  
+  .status-sticker.below-fold {
+    background-color: #1e4a6b;
+    color: white;
+  }
+  
+  /* Early Hints sticker for images - Premium performance feature */
+  .status-sticker.early-hints {
+    background-color: #7c3aed;
+    color: white;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: 1px solid #6d28d9;
+  }
+  

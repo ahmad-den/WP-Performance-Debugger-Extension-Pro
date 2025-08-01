@@ -1,0 +1,92 @@
+/* Header analyzer (cache/hosting info) styles */
+.header-group {
+    margin-bottom: 16px;
+    background-color: var(--background-light);
+    padding: 12px 14px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color-light);
+  }
+  
+  .header-group:last-child {
+    margin-bottom: 0;
+  }
+  
+  .header-group-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .header-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    padding: 5px 0;
+  }
+  
+  .header-list li:last-child {
+    margin-bottom: 0;
+  }
+  
+  .header-key {
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  
+  .header-value {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 7px;
+    border-radius: var(--border-radius-sm);
+    display: inline-block;
+    text-align: right;
+    max-width: 65%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Ad provider specific styling */
+  #adprovider.header-value {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-size: 10.5px;
+    color: var(--text-on-strong) !important;
+    border: none !important;
+  }
+  
+  #adprovider[data-provider="Mediavine"] {
+    background-color: #388e3c !important;
+  }
+  
+  #adprovider[data-provider*="AdThrive"],
+  #adprovider[data-provider*="Raptive"] {
+    background-color: #1565c0 !important;
+  }
+  
+  #adprovider[data-provider="Ezoic"] {
+    background-color: #4527a0 !important;
+  }
+  
+  #adprovider[data-provider="Google AdSense"] {
+    background-color: #0277bd !important;
+  }
+  
+  #adprovider[data-provider="Monumetric"] {
+    background-color: #d84315 !important;
+  }
+  
+  #adprovider[data-provider="None detected"],
+  #adprovider[data-provider="N/A"] {
+    background-color: var(--neutral-bg) !important;
+    color: var(--text-secondary) !important;
+  }
+  
