@@ -138,28 +138,6 @@ function createFontStatusContainer(font) {
   const statusContainer = document.createElement("div")
   statusContainer.className = "status-container"
 
-  // Early Hints indicator (highest priority) - Enhanced with confidence levels
-  if (font.earlyHints) {
-    const earlyHintsSticker = document.createElement("span")
-    
-    // Show confidence level in the sticker
-    if (font.earlyHintsConfidence === 'high') {
-      earlyHintsSticker.textContent = "EARLY HINTS ✓"
-      earlyHintsSticker.className = "status-sticker early-hints confirmed"
-      earlyHintsSticker.title = `Confirmed Early Hints via ${font.earlyHintsMethod || '103 response'}`
-    } else if (font.earlyHintsConfidence === 'low') {
-      earlyHintsSticker.textContent = "EARLY HINTS ?"
-      earlyHintsSticker.className = "status-sticker early-hints potential"
-      earlyHintsSticker.title = `Potential Early Hints via ${font.earlyHintsMethod || 'timing analysis'}`
-    } else {
-      earlyHintsSticker.textContent = "EARLY HINTS"
-      earlyHintsSticker.className = "status-sticker early-hints"
-      earlyHintsSticker.title = "Early Hints detected"
-    }
-    
-    statusContainer.appendChild(earlyHintsSticker)
-  }
-
   // Font type sticker
   if (font.type) {
     const typeSticker = document.createElement("span")

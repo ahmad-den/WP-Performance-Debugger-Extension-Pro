@@ -101,6 +101,6 @@
       "js": ["content.js"]
     }
   ],
-  "permissions": ["storage", "tabs", "activeTab", "webNavigation", "scripting", "windows", "webRequest"],
+  "permissions": ["storage", "tabs", "activeTab", "webNavigation", "scripting", "windows"],
   "host_permissions": ["<all_urls>"]
 }

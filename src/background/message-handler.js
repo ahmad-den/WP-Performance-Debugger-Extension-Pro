@@ -12,7 +12,6 @@ import {
   handleDetachedWindowClosed,
 } from "./window-manager.js"
 import { getWindowState, WINDOW_STATES } from "../utils/window-state.js"
-import { getTabEarlyHints } from "./early-hints-monitor.js"
 
 // Storage for throttling timestamps (replaces window usage in service worker)
 const throttleStorage = new Map()
@@ -77,15 +76,6 @@ export function setupMessageHandlers(chrome) {
       return true
     } else if (request.action === "completePSIResults") {
       handleCompletePSIResults(request, sender)
-    } else if (request.action === "getEarlyHints") {
-      handleGetEarlyHints(request, sendResponse)
-      return true
-    } else if (request.action === "getCurrentTabEarlyHints") {
-      handleGetCurrentTabEarlyHints(request, sendResponse, chrome)
-      return true
-    } else if (request.action === "getTabEarlyHints") {
-      handleGetTabEarlyHints(request, sendResponse)
-      return true
     }
     return true
   })
@@ -150,39 +140,6 @@ export function setupMessageHandlers(chrome) {
   })
 }
 
-
-/**
- * Handles Early Hints data requests for specific tab
- * @param {Object} request - The request object
- * @param {Function} sendResponse - The response callback
- */
-function handleGetTabEarlyHints(request, sendResponse) {
-  const earlyHintsData = getTabEarlyHints(request.tabId)
-  console.log("🚀 [Early Hints] Retrieving Early Hints data for tab:", request.tabId, earlyHintsData ? "✅ found" : "❌ not found")
-  sendResponse(earlyHintsData)
-}
-
-/**
- * Handles Early Hints data requests for current tab (from content script)
- * @param {Object} request - The request object
- * @param {Function} sendResponse - The response callback
- * @param {Object} chrome - Chrome API object
- */
-function handleGetCurrentTabEarlyHints(request, sendResponse, chrome) {
-  // Get the current active tab and return its Early Hints data
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
-      console.log("No active tab found for Early Hints request")
-      sendResponse(null)
-      return
-    }
-
-    const tabId = tabs[0].id
-    const earlyHintsData = getTabEarlyHints(tabId)
-    console.log("🚀 [Early Hints] Retrieving Early Hints data for current tab:", tabId, earlyHintsData ? "✅ found" : "❌ not found")
-    sendResponse(earlyHintsData)
-  })
-}
 
 /**
  * Handles PSI results storage
