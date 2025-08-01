@@ -11,8 +11,12 @@ import {
 } from "./parameter-manager.js"
 import { setupMessageHandlers, handleExtensionIconClick } from "./message-handler.js"
 import { handleDetachedWindowClosed, saveWindowBounds, isDetachedWindow } from "./window-manager.js"
+import { initializeEarlyHintsMonitoring } from "./early-hints-monitor.js"
 
 // Declare chrome variable
+
+// Initialize Early Hints monitoring
+initializeEarlyHintsMonitoring()
 
 // Set up message handlers
 setupMessageHandlers(chrome)

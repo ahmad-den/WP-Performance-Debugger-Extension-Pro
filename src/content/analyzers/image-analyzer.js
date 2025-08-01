@@ -7,53 +7,81 @@ import {
 } from "../../utils/dom-helpers.js"
 
 /**
- * Gets all preloaded images on the page
+ * Gets all preloaded images on the page with proper Early Hints detection
  * @returns {Promise<Array>} Array of preloaded image data
  */
 export function getPreloadedImages() {
-  const uniqueImages = new Map()
+  return new Promise(async (resolve) => {
+    // Get Early Hints data from background script
+    const earlyHintsData = await getEarlyHintsFromBackground()
+    
+    const uniqueImages = new Map()
 
-  // Get performance entries for images
-  const imageEntries = performance.getEntriesByType("resource").filter((entry) => {
-    return entry.initiatorType === "img" || entry.name.match(/\.(jpg|jpeg|png|gif|webp|avif|svg)(\?.*)?$/i)
-  })
-
-  document.querySelectorAll('link[rel="preload"][as="image"]').forEach((el) => {
-    const earlyHints = detectEarlyHintsFromImageLink(el)
-    uniqueImages.set(el.href, {
-      url: el.href,
-      fetchpriority: el.getAttribute("fetchpriority") || null,
-      type: "preload",
-      earlyHints,
+    // Get performance entries for images
+    const imageEntries = performance.getEntriesByType("resource").filter((entry) => {
+      return entry.initiatorType === "img" || entry.name.match(/\.(jpg|jpeg|png|gif|webp|avif|svg)(\?.*)?$/i)
     })
-  })
 
-  document.querySelectorAll("img[data-perfmatters-preload]").forEach((el) => {
-    if (!uniqueImages.has(el.src)) {
-      const earlyHints = detectEarlyHintsFromImagePerformance(el.src, imageEntries)
-      uniqueImages.set(el.src, {
-        url: el.src,
+    document.querySelectorAll('link[rel="preload"][as="image"]').forEach((el) => {
+      const earlyHintsStatus = checkEarlyHintsStatus(el.href, earlyHintsData)
+      
+      uniqueImages.set(el.href, {
+        url: el.href,
         fetchpriority: el.getAttribute("fetchpriority") || null,
-        type: "perfmatters",
-        earlyHints,
+        type: "preload",
+        earlyHints: earlyHintsStatus.isEarlyHints,
+        earlyHintsConfidence: earlyHintsStatus.confidence,
+        earlyHintsMethod: earlyHintsStatus.method,
+      })
+    })
+
+    document.querySelectorAll("img[data-perfmatters-preload]").forEach((el) => {
+      if (!uniqueImages.has(el.src)) {
+        const earlyHintsStatus = checkEarlyHintsStatus(el.src, earlyHintsData)
+        
+        uniqueImages.set(el.src, {
+          url: el.src,
+          fetchpriority: el.getAttribute("fetchpriority") || null,
+          type: "perfmatters",
+          earlyHints: earlyHintsStatus.isEarlyHints,
+          earlyHintsConfidence: earlyHintsStatus.confidence,
+          earlyHintsMethod: earlyHintsStatus.method,
+        })
+      }
+    })
+
+    document.querySelectorAll('img[loading="eager"]').forEach((el) => {
+      if (!uniqueImages.has(el.src)) {
+        const earlyHintsStatus = checkEarlyHintsStatus(el.src, earlyHintsData)
+        
+        uniqueImages.set(el.src, {
+          url: el.src,
+          fetchpriority: el.getAttribute("fetchpriority") || null,
+          type: "eager",
+          earlyHints: earlyHintsStatus.isEarlyHints,
+          earlyHintsConfidence: earlyHintsStatus.confidence,
+          earlyHintsMethod: earlyHintsStatus.method,
+        })
+      }
+    })
+
+    // Add confirmed Early Hints images that might not be loaded yet
+    if (earlyHintsData && earlyHintsData.confirmedResources) {
+      earlyHintsData.confirmedResources.forEach((imageUrl) => {
+        if (isImageUrl(imageUrl) && !uniqueImages.has(imageUrl)) {
+          uniqueImages.set(imageUrl, {
+            url: imageUrl,
+            fetchpriority: null,
+            type: "early-hints",
+            earlyHints: true,
+            earlyHintsConfidence: 'high',
+            earlyHintsMethod: '103_response',
+          })
+        }
       })
     }
-  })
 
-  document.querySelectorAll('img[loading="eager"]').forEach((el) => {
-    if (!uniqueImages.has(el.src)) {
-      const earlyHints = detectEarlyHintsFromImagePerformance(el.src, imageEntries)
-      uniqueImages.set(el.src, {
-        url: el.src,
-        fetchpriority: el.getAttribute("fetchpriority") || null,
-        type: "eager",
-        earlyHints,
-      })
-    }
-  })
-
-  return Promise.resolve(
-    Array.from(uniqueImages.values()).map((resource) => {
+    const processedImages = Array.from(uniqueImages.values()).map((resource) => {
       const imgElement = document.querySelector(`img[src="${resource.url}"]`)
 
       if (imgElement) {
@@ -72,7 +100,7 @@ export function getPreloadedImages() {
           issues,
           loading: imgElement.getAttribute("loading") || "auto",
           decoding: imgElement.getAttribute("decoding") || "auto",
-          fetchpriority: imgElement.getAttribute("fetchpriority") || null,
+          fetchpriority: imgElement.getAttribute("fetchpriority") || resource.fetchpriority,
         }
       }
 
@@ -83,40 +111,81 @@ export function getPreloadedImages() {
         format: getImageFormat(resource.url),
         issues: [{ type: "missing", severity: "low", message: "Image not found in DOM" }],
       }
-    }),
-  )
+    })
+
+    resolve(processedImages)
+  })
 }
 
 /**
- * Detects Early Hints from image preload link element
- * @param {HTMLLinkElement} link - Link element
- * @returns {boolean} True if likely from Early Hints
+ * Gets Early Hints data from background script
+ * @returns {Promise<Object|null>} Early Hints data or null
  */
-function detectEarlyHintsFromImageLink(link) {
-  // Check for Early Hints indicators in link attributes
-  return (
-    link.hasAttribute("as") &&
-    link.getAttribute("as") === "image" &&
-    link.hasAttribute("rel") &&
-    link.getAttribute("rel") === "preload"
-  )
+async function getEarlyHintsFromBackground() {
+  return new Promise((resolve) => {
+    // Get current tab ID first
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (chrome.runtime.lastError || !tabs || tabs.length === 0) {
+        resolve(null)
+        return
+      }
+
+      const tabId = tabs[0].id
+
+      // Get Early Hints data for current tab
+      chrome.runtime.sendMessage({ action: "getEarlyHints", tabId: tabId }, (earlyHintsData) => {
+        if (chrome.runtime.lastError) {
+          console.debug("Error getting Early Hints data:", chrome.runtime.lastError)
+          resolve(null)
+          return
+        }
+
+        console.log("🚀 [Early Hints] Retrieved data from background:", earlyHintsData)
+        resolve(earlyHintsData)
+      })
+    })
+  })
 }
 
 /**
- * Detects Early Hints from image performance entries
- * @param {string} imageUrl - Image URL
- * @param {Array} imageEntries - Performance entries for images
- * @returns {boolean} True if likely loaded via Early Hints
+ * Checks Early Hints status for a specific URL
+ * @param {string} url - Resource URL to check
+ * @param {Object} earlyHintsData - Early Hints data from background
+ * @returns {Object} Early Hints status with confidence level
  */
-function detectEarlyHintsFromImagePerformance(imageUrl, imageEntries) {
-  const entry = imageEntries.find((e) => e.name === imageUrl)
-  if (!entry) return false
+function checkEarlyHintsStatus(url, earlyHintsData) {
+  if (!earlyHintsData) {
+    return { isEarlyHints: false, confidence: 'none', method: null }
+  }
 
-  // Early Hints characteristics for images:
-  // 1. Very early start time (within first 200ms for images)
-  // 2. Link initiator type
-  // 3. Fast response time
-  return entry.startTime < 200 && entry.initiatorType === "link" && entry.responseEnd - entry.responseStart < 100
+  // Check confirmed Early Hints resources (from 103 responses)
+  if (earlyHintsData.confirmedResources && earlyHintsData.confirmedResources.includes(url)) {
+    return {
+      isEarlyHints: true,
+      confidence: 'high',
+      method: '103_response'
+    }
+  }
+
+  // Check potential Early Hints resources (heuristic)
+  if (earlyHintsData.potentialResources && earlyHintsData.potentialResources.includes(url)) {
+    return {
+      isEarlyHints: true,
+      confidence: 'low',
+      method: 'timing_heuristic'
+    }
+  }
+
+  return { isEarlyHints: false, confidence: 'none', method: null }
+}
+
+/**
+ * Checks if a URL is an image resource
+ * @param {string} url - URL to check
+ * @returns {boolean} True if URL appears to be an image
+ */
+function isImageUrl(url) {
+  return url.match(/\.(jpg|jpeg|png|gif|webp|avif|svg)(\?.*)?$/i) !== null
 }
 
 /**

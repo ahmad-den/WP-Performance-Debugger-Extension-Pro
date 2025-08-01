@@ -83,12 +83,40 @@
     color: white;
   }
   
-  /* Early Hints sticker for images - Premium performance feature */
+  /* Early Hints stickers - Enhanced with confidence levels */
   .status-sticker.early-hints {
     background-color: #7c3aed;
     color: white;
     font-weight: 700;
     letter-spacing: 0.5px;
     border: 1px solid #6d28d9;
+    position: relative;
   }
   
+  /* Confirmed Early Hints - Bright purple with checkmark */
+  .status-sticker.early-hints.confirmed {
+    background-color: #8b5cf6;
+    border: 1px solid #7c3aed;
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.3);
+  }
+  
+  /* Potential Early Hints - Dimmer purple with question mark */
+  .status-sticker.early-hints.potential {
+    background-color: #a78bfa;
+    border: 1px solid #8b5cf6;
+    opacity: 0.9;
+  }
+  
+  /* Add subtle animation for confirmed Early Hints */
+  .status-sticker.early-hints.confirmed {
+    animation: early-hints-glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes early-hints-glow {
+    from {
+      box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.3);
+    }
+    to {
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5);
+    }
+  }

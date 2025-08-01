@@ -12,6 +12,7 @@ import {
   handleDetachedWindowClosed,
 } from "./window-manager.js"
 import { getWindowState, WINDOW_STATES } from "../utils/window-state.js"
+import { getTabEarlyHints } from "./early-hints-monitor.js"
 
 // Storage for throttling timestamps (replaces window usage in service worker)
 const throttleStorage = new Map()
@@ -76,6 +77,9 @@ export function setupMessageHandlers(chrome) {
       return true
     } else if (request.action === "completePSIResults") {
       handleCompletePSIResults(request, sender)
+    } else if (request.action === "getEarlyHints") {
+      handleGetEarlyHints(request, sendResponse)
+      return true
     }
     return true
   })
@@ -138,6 +142,17 @@ export function setupMessageHandlers(chrome) {
         })
     }
   })
+}
+
+/**
+ * Handles Early Hints data requests
+ * @param {Object} request - The request object
+ * @param {Function} sendResponse - The response callback
+ */
+function handleGetEarlyHints(request, sendResponse) {
+  const earlyHintsData = getTabEarlyHints(request.tabId)
+  console.log("🚀 [Early Hints] Retrieving Early Hints data for tab:", request.tabId, earlyHintsData ? "✅ found" : "❌ not found")
+  sendResponse(earlyHintsData)
 }
 
 /**

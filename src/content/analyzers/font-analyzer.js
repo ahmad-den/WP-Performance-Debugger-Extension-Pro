@@ -1,11 +1,14 @@
 import { formatFileSize } from "../../utils/formatters.js"
 
 /**
- * Gets all loaded and preloaded fonts on the page
+ * Gets all loaded and preloaded fonts on the page with proper Early Hints detection
  * @returns {Promise<Array>} Array of font data
  */
 export function getLoadedAndPreloadedFonts() {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
+    // Get Early Hints data from background script
+    const earlyHintsData = await getEarlyHintsFromBackground()
+    
     const fontResources = performance.getEntriesByType("resource").filter((entry) => {
       const loadedWithinThreeSeconds = entry.startTime < 3000
       const isFontResource =
@@ -21,20 +24,19 @@ export function getLoadedAndPreloadedFonts() {
       crossorigin: el.getAttribute("crossorigin") || null,
     }))
 
-    // Get Early Hints fonts from performance navigation timing
-    const earlyHintsFonts = getEarlyHintsFonts()
-
     const uniqueFonts = new Map()
 
     fontResources.forEach((resource) => {
       const preloadedFont = preloadedFonts.find((pf) => pf.url === resource.name)
-      const isEarlyHints = earlyHintsFonts.includes(resource.name)
+      const earlyHintsStatus = checkEarlyHintsStatus(resource.name, earlyHintsData)
 
       uniqueFonts.set(resource.name, {
         url: resource.name,
         loadTime: Math.round(resource.startTime),
         preloaded: !!preloadedFont,
-        earlyHints: isEarlyHints,
+        earlyHints: earlyHintsStatus.isEarlyHints,
+        earlyHintsConfidence: earlyHintsStatus.confidence,
+        earlyHintsMethod: earlyHintsStatus.method,
         fetchpriority: preloadedFont?.fetchpriority || null,
         type: getFontType(resource.name),
         crossorigin: preloadedFont?.crossorigin || null,
@@ -45,12 +47,15 @@ export function getLoadedAndPreloadedFonts() {
 
     preloadedFonts.forEach((pf) => {
       if (!uniqueFonts.has(pf.url)) {
-        const isEarlyHints = earlyHintsFonts.includes(pf.url)
+        const earlyHintsStatus = checkEarlyHintsStatus(pf.url, earlyHintsData)
+        
         uniqueFonts.set(pf.url, {
           url: pf.url,
           loadTime: 0,
           preloaded: true,
-          earlyHints: isEarlyHints,
+          earlyHints: earlyHintsStatus.isEarlyHints,
+          earlyHintsConfidence: earlyHintsStatus.confidence,
+          earlyHintsMethod: earlyHintsStatus.method,
           fetchpriority: pf.fetchpriority,
           type: getFontType(pf.url),
           crossorigin: pf.crossorigin,
@@ -60,22 +65,26 @@ export function getLoadedAndPreloadedFonts() {
       }
     })
 
-    // Add fonts that are only in Early Hints but not yet loaded
-    earlyHintsFonts.forEach((fontUrl) => {
-      if (!uniqueFonts.has(fontUrl)) {
-        uniqueFonts.set(fontUrl, {
-          url: fontUrl,
-          loadTime: 0,
-          preloaded: false,
-          earlyHints: true,
-          fetchpriority: null,
-          type: getFontType(fontUrl),
-          crossorigin: null,
-          fileSize: null,
-          fileSizeFormatted: null,
-        })
-      }
-    })
+    // Add confirmed Early Hints fonts that might not be loaded yet
+    if (earlyHintsData && earlyHintsData.confirmedResources) {
+      earlyHintsData.confirmedResources.forEach((fontUrl) => {
+        if (isFontUrl(fontUrl) && !uniqueFonts.has(fontUrl)) {
+          uniqueFonts.set(fontUrl, {
+            url: fontUrl,
+            loadTime: 0,
+            preloaded: false,
+            earlyHints: true,
+            earlyHintsConfidence: 'high',
+            earlyHintsMethod: '103_response',
+            fetchpriority: null,
+            type: getFontType(fontUrl),
+            crossorigin: null,
+            fileSize: null,
+            fileSizeFormatted: null,
+          })
+        }
+      })
+    }
 
     const allFonts = Array.from(uniqueFonts.values()).sort((a, b) => a.loadTime - b.loadTime)
     resolve(allFonts)
@@ -83,69 +92,72 @@ export function getLoadedAndPreloadedFonts() {
 }
 
 /**
- * Gets fonts from Early Hints headers
- * @returns {Array} Array of font URLs from Early Hints
+ * Gets Early Hints data from background script
+ * @returns {Promise<Object|null>} Early Hints data or null
  */
-function getEarlyHintsFonts() {
-  const earlyHintsFonts = []
+async function getEarlyHintsFromBackground() {
+  return new Promise((resolve) => {
+    // Get current tab ID
+    chrome.runtime.sendMessage({ action: "getCurrentTabId" }, (response) => {
+      if (chrome.runtime.lastError || !response || !response.tabId) {
+        resolve(null)
+        return
+      }
 
-  try {
-    // Check if there are any Early Hints in the performance navigation timing
-    const navigation = performance.getEntriesByType("navigation")[0]
-
-    // Try to get Early Hints from server timing or other available APIs
-    // This is a simplified detection - in practice, Early Hints detection
-    // might require server-side cooperation or different detection methods
-
-    // Check for preload links that might have been sent via Early Hints
-    const preloadLinks = document.querySelectorAll('link[rel="preload"][as="font"]')
-    preloadLinks.forEach((link) => {
-      // If the link was added very early (before DOM ready), it might be from Early Hints
-      if (link.href && link.href.match(/\.(woff2?|ttf|otf|eot)($|\?)/i)) {
-        // Additional heuristics could be added here to better detect Early Hints
-        // For now, we'll mark fonts with specific patterns as potentially from Early Hints
-        if (isLikelyEarlyHints(link)) {
-          earlyHintsFonts.push(link.href)
+      // Get Early Hints data for current tab
+      chrome.runtime.sendMessage({ action: "getEarlyHints", tabId: response.tabId }, (earlyHintsData) => {
+        if (chrome.runtime.lastError) {
+          console.debug("Error getting Early Hints data:", chrome.runtime.lastError)
+          resolve(null)
+          return
         }
-      }
-    })
 
-    // Alternative: Check for fonts loaded very early in the page lifecycle
-    const veryEarlyFonts = performance.getEntriesByType("resource").filter((entry) => {
-      return (
-        entry.startTime < 100 && // Loaded within first 100ms
-        entry.name.match(/\.(woff2?|ttf|otf|eot)($|\?)/i) &&
-        entry.initiatorType === "link"
-      ) // Likely from a preload link
+        console.log("🚀 [Early Hints] Retrieved data from background:", earlyHintsData)
+        resolve(earlyHintsData)
+      })
     })
-
-    veryEarlyFonts.forEach((font) => {
-      if (!earlyHintsFonts.includes(font.name)) {
-        earlyHintsFonts.push(font.name)
-      }
-    })
-  } catch (error) {
-    console.debug("Early Hints detection failed:", error)
-  }
-
-  return earlyHintsFonts
+  })
 }
 
 /**
- * Heuristic to determine if a preload link might be from Early Hints
- * @param {HTMLLinkElement} link - The link element
- * @returns {boolean} Whether the link is likely from Early Hints
+ * Checks Early Hints status for a specific URL
+ * @param {string} url - Resource URL to check
+ * @param {Object} earlyHintsData - Early Hints data from background
+ * @returns {Object} Early Hints status with confidence level
  */
-function isLikelyEarlyHints(link) {
-  // Check if the link has attributes commonly used with Early Hints
-  const hasEarlyHintsAttributes =
-    link.hasAttribute("crossorigin") && link.hasAttribute("type") && link.type.includes("font/")
+function checkEarlyHintsStatus(url, earlyHintsData) {
+  if (!earlyHintsData) {
+    return { isEarlyHints: false, confidence: 'none', method: null }
+  }
 
-  // Check if it's in the document head (Early Hints are typically added there)
-  const isInHead = link.closest("head") !== null
+  // Check confirmed Early Hints resources (from 103 responses)
+  if (earlyHintsData.confirmedResources && earlyHintsData.confirmedResources.includes(url)) {
+    return {
+      isEarlyHints: true,
+      confidence: 'high',
+      method: '103_response'
+    }
+  }
 
-  // Additional checks could include timing analysis, server headers, etc.
-  return hasEarlyHintsAttributes && isInHead
+  // Check potential Early Hints resources (heuristic)
+  if (earlyHintsData.potentialResources && earlyHintsData.potentialResources.includes(url)) {
+    return {
+      isEarlyHints: true,
+      confidence: 'low',
+      method: 'timing_heuristic'
+    }
+  }
+
+  return { isEarlyHints: false, confidence: 'none', method: null }
+}
+
+/**
+ * Checks if a URL is a font resource
+ * @param {string} url - URL to check
+ * @returns {boolean} True if URL appears to be a font
+ */
+function isFontUrl(url) {
+  return url.match(/\.(woff2?|ttf|otf|eot)($|\?)/i) !== null
 }
 
 /**
