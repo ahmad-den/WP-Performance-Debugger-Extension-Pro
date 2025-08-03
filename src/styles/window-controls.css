@@ -1,8 +1,9 @@
 /* Window controls styles */
 .window-controls {
-    margin-left: auto;
     display: flex;
     align-items: center;
+  gap: 8px;
+  margin-left: auto;
   }
   
   .window-toggle-btn {
