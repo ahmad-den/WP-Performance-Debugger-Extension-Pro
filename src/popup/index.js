@@ -50,11 +50,10 @@ console.log("All modules imported successfully")
  * Tab configuration
  */
 const TABS = [
+  { id: "insightsTab", contentId: "insightsContent" },
   { id: "imageAnalyzerTab", contentId: "imageAnalyzerContent" },
   { id: "fontAnalyzerTab", contentId: "fontAnalyzerContent" },
   { id: "headerAnalyzerTab", contentId: "headerAnalyzerContent" },
-  { id: "insightsTab", contentId: "insightsContent" },
-  { id: "perfmattersDebugTab", contentId: "perfmattersDebugContent" },
 ]
 
 console.log("Testing tab elements...")
