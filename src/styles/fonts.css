@@ -147,12 +147,3 @@
     color: white;
   }
   
-  /* Early Hints sticker - Premium performance feature */
-  .status-sticker.early-hints {
-    background-color: #7c3aed;
-    color: white;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    border: 1px solid #6d28d9;
-  }
-  

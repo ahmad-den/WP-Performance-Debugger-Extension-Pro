@@ -174,14 +174,6 @@ function createImageStatusContainer(image) {
   const statusContainer = document.createElement("div")
   statusContainer.className = "status-container"
 
-  // Early Hints indicator (highest priority)
-  if (image.earlyHints) {
-    const earlyHintsSticker = document.createElement("span")
-    earlyHintsSticker.textContent = "EARLY HINTS"
-    earlyHintsSticker.className = "status-sticker early-hints"
-    statusContainer.appendChild(earlyHintsSticker)
-  }
-
   // Critical Path indicator (most important)
   if (image.isCritical !== undefined) {
     const criticalSticker = document.createElement("span")

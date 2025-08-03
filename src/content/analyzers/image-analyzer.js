@@ -19,35 +19,29 @@ export function getPreloadedImages() {
   })
 
   document.querySelectorAll('link[rel="preload"][as="image"]').forEach((el) => {
-    const earlyHints = detectEarlyHintsFromImageLink(el)
     uniqueImages.set(el.href, {
       url: el.href,
       fetchpriority: el.getAttribute("fetchpriority") || null,
       type: "preload",
-      earlyHints,
     })
   })
 
   document.querySelectorAll("img[data-perfmatters-preload]").forEach((el) => {
     if (!uniqueImages.has(el.src)) {
-      const earlyHints = detectEarlyHintsFromImagePerformance(el.src, imageEntries)
       uniqueImages.set(el.src, {
         url: el.src,
         fetchpriority: el.getAttribute("fetchpriority") || null,
         type: "perfmatters",
-        earlyHints,
       })
     }
   })
 
   document.querySelectorAll('img[loading="eager"]').forEach((el) => {
     if (!uniqueImages.has(el.src)) {
-      const earlyHints = detectEarlyHintsFromImagePerformance(el.src, imageEntries)
       uniqueImages.set(el.src, {
         url: el.src,
         fetchpriority: el.getAttribute("fetchpriority") || null,
         type: "eager",
-        earlyHints,
       })
     }
   })
@@ -85,38 +79,6 @@ export function getPreloadedImages() {
       }
     }),
   )
-}
-
-/**
- * Detects Early Hints from image preload link element
- * @param {HTMLLinkElement} link - Link element
- * @returns {boolean} True if likely from Early Hints
- */
-function detectEarlyHintsFromImageLink(link) {
-  // Check for Early Hints indicators in link attributes
-  return (
-    link.hasAttribute("as") &&
-    link.getAttribute("as") === "image" &&
-    link.hasAttribute("rel") &&
-    link.getAttribute("rel") === "preload"
-  )
-}
-
-/**
- * Detects Early Hints from image performance entries
- * @param {string} imageUrl - Image URL
- * @param {Array} imageEntries - Performance entries for images
- * @returns {boolean} True if likely loaded via Early Hints
- */
-function detectEarlyHintsFromImagePerformance(imageUrl, imageEntries) {
-  const entry = imageEntries.find((e) => e.name === imageUrl)
-  if (!entry) return false
-
-  // Early Hints characteristics for images:
-  // 1. Very early start time (within first 200ms for images)
-  // 2. Link initiator type
-  // 3. Fast response time
-  return entry.startTime < 200 && entry.initiatorType === "link" && entry.responseEnd - entry.responseStart < 100
 }
 
 /**

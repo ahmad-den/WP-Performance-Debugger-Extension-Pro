@@ -138,14 +138,6 @@ function createFontStatusContainer(font) {
   const statusContainer = document.createElement("div")
   statusContainer.className = "status-container"
 
-  // Early Hints indicator (highest priority)
-  if (font.earlyHints) {
-    const earlyHintsSticker = document.createElement("span")
-    earlyHintsSticker.textContent = "EARLY HINTS"
-    earlyHintsSticker.className = "status-sticker early-hints"
-    statusContainer.appendChild(earlyHintsSticker)
-  }
-
   // Font type sticker
   if (font.type) {
     const typeSticker = document.createElement("span")
