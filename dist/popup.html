@@ -35,7 +35,11 @@
 </div>
 
 <div class="tabs">
- <button class="tab active" id="imageAnalyzerTab">
+ <button class="tab active" id="insightsTab">
+   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H1l6-6 6 6z"></path><path d="m22 12-4-4-4 4"></path><path d="M16 16h6l-6 6-6-6z"></path><path d="m2 12 4 4 4-4"></path></svg>
+   Core Web Vitals
+ </button>
+ <button class="tab" id="imageAnalyzerTab">
    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
    Images
  </button>
@@ -47,122 +51,19 @@
    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
    Headers
  </button>
- <button class="tab" id="insightsTab">
-   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H1l6-6 6 6z"></path><path d="m22 12-4-4-4 4"></path><path d="M16 16h6l-6 6-6-6z"></path><path d="m2 12 4 4 4-4"></path></svg>
-   Insights
+</div>
+
+<!-- Debug Gear Icon -->
+<div class="debug-gear-container">
+ <button class="debug-gear-btn" id="debugGearBtn" title="Debug Tools">
+   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <circle cx="12" cy="12" r="3"></circle>
+     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+   </svg>
  </button>
- <button class="tab" id="perfmattersDebugTab">
-   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9.09 9.09 5.83 5.83M14.92 9.09l-5.83 5.83"></path></svg>
-   Debug
- </button>
 </div>
 
-<div id="imageAnalyzerContent" class="content active">
- <div id="imageInfo" class="analysis-results">
-   <p id="imageCount" class="count-badge"></p>
-   <ul id="imageList" class="result-list scrollable-content"></ul>
- </div>
-</div>
-
-<div id="fontAnalyzerContent" class="content">
- <div id="fontInfo" class="analysis-results">
-   <p id="fontCount" class="count-badge"></p>
-   <ul id="fontList" class="result-list scrollable-content"></ul>
- </div>
-</div>
-
-<div id="headerAnalyzerContent" class="content">
- <div id="headerInfo" class="analysis-results scrollable-content">
-   <div class="header-group">
-     <h3 class="header-group-title">Cache Information</h3>
-     <ul class="header-list">
-       <li>
-         <span class="header-key">x-bigscoots-cache-status:</span>
-         <span id="x-bigscoots-cache-status" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">cf-cache-status:</span>
-         <span id="cf-cache-status" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">x-bigscoots-cache-plan:</span>
-         <span id="x-bigscoots-cache-plan" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">x-bigscoots-cache-mode:</span>
-         <span id="x-bigscoots-cache-mode" class="header-value">N/A</span>
-       </li>
-     </ul>
-   </div>
-   <div class="header-group">
-     <h3 class="header-group-title">Hosting Information</h3>
-     <ul class="header-list">
-       <li>
-         <span class="header-key">x-hosted-by:</span>
-         <span id="x-hosted-by" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">x-ezoic-cdn:</span>
-         <span id="x-ezoic-cdn" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">x-np-cfe:</span>
-         <span id="x-np-cfe" class="header-value">N/A</span>
-       </li>
-     </ul>
-   </div>
-   <div class="header-group">
-     <h3 class="header-group-title advertising">Advertising</h3>
-     <ul class="header-list">
-       <li>
-         <span class="header-key">Ad Provider:</span>
-         <span id="adprovider" class="header-value" data-provider="N/A">N/A</span>
-       </li>
-     </ul>
-   </div>
- 
-   <div class="header-group">
-     <h3 class="header-group-title">Performance Optimization</h3>
-     <ul class="header-list">
-       <li>
-         <span class="header-key">Content-Encoding:</span>
-         <span id="content-encoding" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">Perfmatters RUCSS:</span>
-         <span id="perfmattersrucss" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">Perfmatters Delay JS:</span>
-         <span id="perfmattersdelayjs" class="header-value">N/A</span>
-       </li>
-     </ul>
-   </div>
-   <div class="header-group">
-     <h3 class="header-group-title">Analytics</h3>
-     <ul class="header-list">
-       <li>
-         <span class="header-key">GTM:</span>
-         <span id="gtm" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">UA:</span>
-         <span id="ua" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">GA4:</span>
-         <span id="ga4" class="header-value">N/A</span>
-       </li>
-       <li>
-         <span class="header-key">GA:</span>
-         <span id="ga" class="header-value">N/A</span>
-       </li>
-     </ul>
-   </div>
- </div>
-</div>
-
-<div id="insightsContent" class="content">
+<div id="insightsContent" class="content active">
  <div class="insights-container">
    <!-- Error container for insights -->
    <div id="insightsErrorContainer" class="insights-error-message" style="display: none;"></div>
@@ -474,7 +375,124 @@
  </div>
 </div>
 
-<div id="perfmattersDebugContent" class="content">
+<div id="imageAnalyzerContent" class="content">
+ <div id="imageInfo" class="analysis-results">
+   <p id="imageCount" class="count-badge"></p>
+   <ul id="imageList" class="result-list scrollable-content"></ul>
+ </div>
+</div>
+
+<div id="fontAnalyzerContent" class="content">
+ <div id="fontInfo" class="analysis-results">
+   <p id="fontCount" class="count-badge"></p>
+   <ul id="fontList" class="result-list scrollable-content"></ul>
+ </div>
+</div>
+
+<div id="headerAnalyzerContent" class="content">
+ <div id="headerInfo" class="analysis-results scrollable-content">
+   <div class="header-group">
+     <h3 class="header-group-title">Cache Information</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">x-bigscoots-cache-status:</span>
+         <span id="x-bigscoots-cache-status" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">cf-cache-status:</span>
+         <span id="cf-cache-status" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-bigscoots-cache-plan:</span>
+         <span id="x-bigscoots-cache-plan" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-bigscoots-cache-mode:</span>
+         <span id="x-bigscoots-cache-mode" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+   <div class="header-group">
+     <h3 class="header-group-title">Hosting Information</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">x-hosted-by:</span>
+         <span id="x-hosted-by" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-ezoic-cdn:</span>
+         <span id="x-ezoic-cdn" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">x-np-cfe:</span>
+         <span id="x-np-cfe" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+   <div class="header-group">
+     <h3 class="header-group-title advertising">Advertising</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">Ad Provider:</span>
+         <span id="adprovider" class="header-value" data-provider="N/A">N/A</span>
+       </li>
+     </ul>
+   </div>
+ 
+   <div class="header-group">
+     <h3 class="header-group-title">Performance Optimization</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">Content-Encoding:</span>
+         <span id="content-encoding" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">Perfmatters RUCSS:</span>
+         <span id="perfmattersrucss" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">Perfmatters Delay JS:</span>
+         <span id="perfmattersdelayjs" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+   <div class="header-group">
+     <h3 class="header-group-title">Analytics</h3>
+     <ul class="header-list">
+       <li>
+         <span class="header-key">GTM:</span>
+         <span id="gtm" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">UA:</span>
+         <span id="ua" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">GA4:</span>
+         <span id="ga4" class="header-value">N/A</span>
+       </li>
+       <li>
+         <span class="header-key">GA:</span>
+         <span id="ga" class="header-value">N/A</span>
+       </li>
+     </ul>
+   </div>
+ </div>
+</div>
+
+<!-- Debug Modal (hidden by default) -->
+<div id="debugModal" class="debug-modal" style="display: none;">
+ <div class="debug-modal-overlay"></div>
+ <div class="debug-modal-content">
+   <div class="debug-modal-header">
+     <h3>Debug Tools</h3>
+     <button class="debug-modal-close" id="debugModalClose">
+       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <line x1="18" y1="6" x2="6" y2="18"></line>
+         <line x1="6" y1="6" x2="18" y2="18"></line>
+       </svg>
+     </button>
+   </div>
  <div class="debug-controls">
    <div class="toggle-group">
      <label class="toggle-container">
@@ -506,6 +524,7 @@
        </div>
      </label>
    </div>
+ </div>
  </div>
 </div>
 </div>

@@ -963,9 +963,9 @@ async function initializePopup() {
     console.log("Setting up periodic polling...")
     setupPeriodicPolling()
 
-    // Set up PSI analyze button
-    console.log("Setting up PSI analyze button...")
-    // PSI button is now set up in insights-display.js
+    // Set up debug gear button
+    console.log("Setting up debug gear button...")
+    setupDebugGearButton()
 
     console.log("=== POPUP INITIALIZATION COMPLETE ===")
   } catch (error) {
@@ -980,6 +980,50 @@ async function initializePopup() {
       console.error("Even fallback failed:", fallbackError)
     }
   }
+}
+
+/**
+ * Sets up the debug gear button functionality
+ */
+function setupDebugGearButton() {
+  const debugGearBtn = document.getElementById("debugGearBtn")
+  const debugModal = document.getElementById("debugModal")
+  const debugModalClose = document.getElementById("debugModalClose")
+  const debugModalOverlay = debugModal?.querySelector(".debug-modal-overlay")
+
+  if (!debugGearBtn || !debugModal) {
+    console.log("Debug gear button or modal not found")
+    return
+  }
+
+  // Open modal
+  debugGearBtn.addEventListener("click", () => {
+    debugModal.style.display = "flex"
+    document.body.style.overflow = "hidden" // Prevent background scrolling
+  })
+
+  // Close modal functions
+  const closeModal = () => {
+    debugModal.style.display = "none"
+    document.body.style.overflow = "" // Restore scrolling
+  }
+
+  // Close on X button
+  if (debugModalClose) {
+    debugModalClose.addEventListener("click", closeModal)
+  }
+
+  // Close on overlay click
+  if (debugModalOverlay) {
+    debugModalOverlay.addEventListener("click", closeModal)
+  }
+
+  // Close on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && debugModal.style.display === "flex") {
+      closeModal()
+    }
+  })
 }
 
 // Initialize when DOM is ready
