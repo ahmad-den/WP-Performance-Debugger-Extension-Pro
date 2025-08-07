@@ -33,11 +33,6 @@ const insightsState = {
   },
 }
 
-// PSI Analysis state management
-let psiAnalysisStartTime = null
-let psiAnalysisEndTime = null
-let psiButtonState = "idle" // idle, analyzing, success, error
-
 /**
  * Core Web Vitals thresholds based on official Google guidelines
  */
@@ -387,81 +382,6 @@ async function verifyContentScriptReady(targetTabId) {
 }
 
 /**
- * Sets up PSI analyze button functionality
- */
-export function setupPSIAnalyzeButton() {
-  console.log("Setting up PSI analyze button")
-  const analyzePSIBtn = document.getElementById("analyzePSIBtn")
-
-  if (!analyzePSIBtn) {
-    console.log("PSI analyze button not found")
-    return
-  }
-
-  analyzePSIBtn.addEventListener("click", async () => {
-    if (psiButtonState === "analyzing") {
-      console.log("PSI analysis already in progress")
-      return
-    }
-
-    console.log("PSI analyze button clicked")
-    
-    // Record start time for cache detection
-    psiAnalysisStartTime = Date.now()
-    psiAnalysisEndTime = null
-    
-    // Update button state
-    updatePSIStatus({ status: "loading", message: "Starting PSI analysis..." })
-
-    try {
-      // Get target tab ID
-      const targetTabId = await window.getTargetTabId()
-
-      if (!targetTabId) {
-        console.error("No target tab available for PSI analysis")
-        updatePSIStatus({ 
-          status: "error", 
-          message: "No target tab available",
-          userMessage: "Please ensure you have an active tab to analyze"
-        })
-        return
-      }
-
-      console.log("Sending PSI analysis request to tab:", targetTabId)
-
-      // Send analysis request to content script
-      const response = await new Promise((resolve) => {
-        chrome.tabs.sendMessage(targetTabId, { action: "analyzePSI" }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.error("Error sending PSI analysis request:", chrome.runtime.lastError)
-            resolve({ success: false, error: chrome.runtime.lastError.message })
-          } else {
-            resolve(response)
-          }
-        })
-      })
-
-      if (!response || !response.success) {
-        console.error("PSI analysis failed:", response?.error)
-        updatePSIStatus({ 
-          status: "error", 
-          message: response?.error || "PSI analysis failed",
-          userMessage: "Analysis failed. Please try again."
-        })
-      }
-      // Success will be handled by the status update from content script
-    } catch (error) {
-      console.error("Error during PSI analysis:", error)
-      updatePSIStatus({ 
-        status: "error", 
-        message: error.message,
-        userMessage: "Analysis failed. Please try again."
-      })
-    }
-  })
-}
-
-/**
  * Sets up the PSI analyze button functionality with proper detached mode support
  */
 function setupPSIAnalyzeButton() {
@@ -606,98 +526,6 @@ function setPSIButtonState(state) {
     psiBtn.disabled = false
     if (btnText) btnText.textContent = "Analyze PSI"
     psiBtn.setAttribute("data-tooltip", "Analyze with PageSpeed Insights")
-  }
-}
-
-/**
- * Updates PSI status and button state
- * @param {Object} statusData - Status data object
- */
-export function updatePSIStatus(statusData) {
-  console.log("🔄 [PSI Status] Updating PSI status:", statusData)
-
-  const analyzePSIBtn = document.getElementById("analyzePSIBtn")
-  const psiCacheStatus = document.getElementById("psiCacheStatus")
-  const cacheStatusText = document.getElementById("cacheStatusText")
-
-  if (!analyzePSIBtn) {
-    console.log("PSI analyze button not found")
-    return
-  }
-
-  // Clear all button states first
-  analyzePSIBtn.classList.remove("analyzing", "success", "error")
-
-  switch (statusData.status) {
-    case "loading":
-      analyzePSIBtn.classList.add("analyzing")
-      analyzePSIBtn.disabled = true
-      psiButtonState = "analyzing"
-      
-      // Hide cache status during loading
-      if (psiCacheStatus) {
-        psiCacheStatus.style.display = "none"
-      }
-      break
-
-    case "success":
-      // Record end time and calculate duration
-      psiAnalysisEndTime = Date.now()
-      const analysisDuration = psiAnalysisStartTime ? (psiAnalysisEndTime - psiAnalysisStartTime) / 1000 : 0
-      
-      console.log(`🕒 [PSI Cache Detection] Analysis took ${analysisDuration.toFixed(1)} seconds`)
-      
-      analyzePSIBtn.classList.add("success")
-      analyzePSIBtn.disabled = false
-      psiButtonState = "success"
-      
-      // Show cache status based on analysis duration
-      if (psiCacheStatus && cacheStatusText) {
-        // Time-based cache detection: 10+ seconds = Fresh, <10 seconds = Cached
-        const isFresh = analysisDuration >= 10
-        const statusText = isFresh ? "Fresh" : "Cached"
-        const statusClass = isFresh ? "fresh" : "cached"
-        
-        console.log(`🏷️ [PSI Cache] Showing status: ${statusText} (${analysisDuration.toFixed(1)}s)`)
-        
-        cacheStatusText.textContent = statusText
-        cacheStatusText.className = `cache-status-text ${statusClass}`
-        psiCacheStatus.style.display = "block"
-      }
-      
-      // Auto-hide success state after delay
-      setTimeout(() => {
-        analyzePSIBtn.classList.remove("success")
-        psiButtonState = "idle"
-      }, 2000)
-      break
-
-    case "error":
-      analyzePSIBtn.classList.add("error")
-      analyzePSIBtn.disabled = false
-      psiButtonState = "error"
-      
-      // Hide cache status on error
-      if (psiCacheStatus) {
-        psiCacheStatus.style.display = "none"
-      }
-      
-      // Auto-hide error state after delay
-      setTimeout(() => {
-        analyzePSIBtn.classList.remove("error")
-        psiButtonState = "idle"
-      }, 3000)
-      break
-
-    default:
-      analyzePSIBtn.disabled = false
-      psiButtonState = "idle"
-      
-      // Hide cache status for unknown states
-      if (psiCacheStatus) {
-        psiCacheStatus.style.display = "none"
-      }
-      break
   }
 }
 
@@ -1043,6 +871,44 @@ export function updatePSILabLCPDisplay(labData) {
 }
 
 // Note: TTFB lab data function removed as TTFB is not available in Lighthouse lab environment
+
+/**
+ * Updates PSI status display
+ * @param {Object} statusData - PSI status data
+ */
+export function updatePSIStatus(statusData) {
+  console.log("updatePSIStatus called with:", statusData)
+
+  if (statusData.status === "loading") {
+    console.log("PSI: Loading...")
+  const cacheStatusContainer = document.getElementById("psiCacheStatus")
+  const cacheStatusText = document.getElementById("cacheStatusText")
+    setPSIButtonState("analyzing")
+    setPSIInsightsLoading(true)
+    
+    // Hide cache status during loading
+    if (cacheStatusContainer) {
+      cacheStatusContainer.style.display = "none"
+    }
+  } else if (statusData.status === "success") {
+    console.log("PSI: Success -", statusData.message, statusData.cached ? "(cached)" : "(fresh)")
+    setPSIButtonState("success")
+    setPSIInsightsLoading(false)
+  } else if (statusData.status === "error") {
+    console.error("PSI: Error -", statusData.message)
+    setPSIButtonState("error")
+    setPSIInsightsLoading(false)
+
+    // Show error toast for API errors
+    const errorMessage = statusData.userMessage || statusData.message || "Analysis failed"
+    showErrorToast(errorMessage, { duration: 5000 })
+    
+    // Hide cache status on error
+    if (cacheStatusContainer) {
+      cacheStatusContainer.style.display = "none"
+    }
+  }
+}
 
 /**
  * Handles complete PSI results including insights
