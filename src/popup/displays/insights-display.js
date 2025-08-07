@@ -97,6 +97,9 @@ function updateUIFromState() {
   // Update error states
   updateErrorStates()
 
+  // Hide cache status when resetting
+  hideElement("psiCacheStatus")
+  
   // Update legend visibility
   updateLegendFromState()
 
@@ -890,6 +893,10 @@ export function updatePSIStatus(statusData) {
     if (cacheStatusContainer) {
       cacheStatusContainer.style.display = "none"
     }
+    // Hide cache status during loading
+    if (psiCacheStatus) {
+      psiCacheStatus.style.display = "none"
+    }
   } else if (statusData.status === "success") {
     console.log("PSI: Success -", statusData.message, statusData.cached ? "(cached)" : "(fresh)")
     setPSIButtonState("success")
@@ -902,6 +909,11 @@ export function updatePSIStatus(statusData) {
     // Show error toast for API errors
     const errorMessage = statusData.userMessage || statusData.message || "Analysis failed"
     showErrorToast(errorMessage, { duration: 5000 })
+    
+    // Hide cache status on error
+    if (psiCacheStatus) {
+      psiCacheStatus.style.display = "none"
+    }
     
     // Hide cache status on error
     if (cacheStatusContainer) {
@@ -940,6 +952,13 @@ function updatePSICacheStatus(fromCache) {
   
   if (!cacheStatusContainer || !cacheStatusText) {
     console.log("PSI cache status elements not found")
+    return
+  }
+  
+  // Only show cache status for actual PSI API responses, not restored data
+  if (fromCache === undefined || fromCache === null) {
+    console.log("No cache status provided, hiding indicator")
+    psiCacheStatus.style.display = "none"
     return
   }
   
