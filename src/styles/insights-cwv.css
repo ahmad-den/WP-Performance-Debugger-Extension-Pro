@@ -23,11 +23,16 @@
     border-bottom: none;
   }
   
-  /* PSI Cache Status Indicator */
-  .psi-cache-status {
+  /* PSI Controls Container */
+  .psi-controls {
     display: flex;
     align-items: center;
-    margin-left: 8px;
+    gap: 8px;
+  }
+  
+  /* PSI Cache Status Indicator */
+  .psi-cache-status {
+    display: none;
   }
   
   .cache-status-text {
