@@ -23,6 +23,35 @@
     border-bottom: none;
   }
   
+  /* PSI Cache Status Indicator */
+  .psi-cache-status {
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+  }
+  
+  .cache-status-text {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+  }
+  
+  .cache-status-text.fresh {
+    background: linear-gradient(135deg, #34c759, #28a745);
+    color: white;
+    border: 1px solid #28a745;
+  }
+  
+  .cache-status-text.cached {
+    background: linear-gradient(135deg, #007aff, #005bb5);
+    color: white;
+    border: 1px solid #005bb5;
+  }
+  
   /* PSI Analyze Button - Rectangular with Progress */
   .psi-analyze-btn {
     display: flex;

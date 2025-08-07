@@ -243,6 +243,7 @@ export async function analyzePSIData() {
         timestamp: Date.now(),
         url: window.location.href,
         rawData: psiData.data, // Store raw data for future use
+        fromCache: psiData.fromCache, // Store cache status
       },
     })
 

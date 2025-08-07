@@ -881,8 +881,15 @@ export function updatePSIStatus(statusData) {
 
   if (statusData.status === "loading") {
     console.log("PSI: Loading...")
+  const cacheStatusContainer = document.getElementById("psiCacheStatus")
+  const cacheStatusText = document.getElementById("cacheStatusText")
     setPSIButtonState("analyzing")
     setPSIInsightsLoading(true)
+    
+    // Hide cache status during loading
+    if (cacheStatusContainer) {
+      cacheStatusContainer.style.display = "none"
+    }
   } else if (statusData.status === "success") {
     console.log("PSI: Success -", statusData.message, statusData.cached ? "(cached)" : "(fresh)")
     setPSIButtonState("success")
@@ -895,6 +902,11 @@ export function updatePSIStatus(statusData) {
     // Show error toast for API errors
     const errorMessage = statusData.userMessage || statusData.message || "Analysis failed"
     showErrorToast(errorMessage, { duration: 5000 })
+    
+    // Hide cache status on error
+    if (cacheStatusContainer) {
+      cacheStatusContainer.style.display = "none"
+    }
   }
 }
 
@@ -906,6 +918,9 @@ export function handleCompletePSIResults(psiData) {
   console.log("handleCompletePSIResults called with:", psiData)
 
   try {
+  // Update cache status indicator
+  updatePSICacheStatus(psiData.fromCache)
+  
     // Update insights display with complete PSI data
     updatePSIInsightsDisplay(psiData)
   } catch (error) {
