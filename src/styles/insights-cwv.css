@@ -25,13 +25,18 @@
   
   /* PSI Controls Container */
   .psi-controls {
+    position: relative;
     display: flex;
+    justify-content: flex-end;
     align-items: center;
-    gap: 8px;
   }
   
   /* PSI Cache Status Indicator */
   .psi-cache-status {
+    position: absolute;
+    right: 140px; /* Position to the left of the button */
+    top: 50%;
+    transform: translateY(-50%);
     display: none;
   }
   
