@@ -243,7 +243,7 @@ export async function analyzePSIData() {
         timestamp: Date.now(),
         url: window.location.href,
         rawData: psiData.data, // Store raw data for future use
-        fromCache: psiData.fromCache, // Store cache status from API
+        fromCache: psiData.fromCache, // Store cache status
       },
     })
 
@@ -251,7 +251,6 @@ export async function analyzePSIData() {
     safeSendMessage({
       action: "completePSIResults",
       psiData: psiData,
-      fromCache: psiData.fromCache, // Include cache status
     })
 
     // Send individual field metric updates
@@ -262,7 +261,6 @@ export async function analyzePSIData() {
           action: "updatePSICLS",
           fieldData: allFieldData.cls,
           status: "success",
-          fromCache: psiData.fromCache,
         })
       }
 
@@ -272,7 +270,6 @@ export async function analyzePSIData() {
           action: "updatePSILCP",
           fieldData: allFieldData.lcp,
           status: "success",
-          fromCache: psiData.fromCache,
         })
       }
 
@@ -282,7 +279,6 @@ export async function analyzePSIData() {
           action: "updatePSIINP",
           fieldData: allFieldData.inp,
           status: "success",
-          fromCache: psiData.fromCache,
         })
       }
 
@@ -292,7 +288,6 @@ export async function analyzePSIData() {
           action: "updatePSITTFB",
           fieldData: allFieldData.ttfb,
           status: "success",
-          fromCache: psiData.fromCache,
         })
       }
     }
@@ -308,7 +303,6 @@ export async function analyzePSIData() {
           action: "updatePSILabCLS",
           labData: labData.cls,
           status: "success",
-          fromCache: psiData.fromCache,
         })
       }
 
@@ -319,7 +313,6 @@ export async function analyzePSIData() {
           action: "updatePSILabLCP",
           labData: labData.lcp,
           status: "success",
-          fromCache: psiData.fromCache,
         })
       }
 
@@ -333,7 +326,6 @@ export async function analyzePSIData() {
       action: "updatePSIStatus",
       status: "success",
       message: "PSI data loaded successfully",
-      fromCache: psiData.fromCache,
     })
 
     console.log("✅ [PSI] Analysis completed successfully")

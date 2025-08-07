@@ -97,10 +97,7 @@ function updateUIFromState() {
   // Update error states
   updateErrorStates()
 
-  // Hide cache status when resetting
-  hideElement("psiCacheStatus")
-  
-    cacheStatus.style.display = "none"
+  // Update legend visibility
   updateLegendFromState()
 
   // Update metric displays
@@ -876,6 +873,7 @@ export function updatePSILabLCPDisplay(labData) {
 // Note: TTFB lab data function removed as TTFB is not available in Lighthouse lab environment
 
 /**
+ * Updates PSI status display
  * @param {Object} statusData - PSI status data
  */
 export function updatePSIStatus(statusData) {
@@ -891,13 +889,6 @@ export function updatePSIStatus(statusData) {
     // Hide cache status during loading
     if (cacheStatusContainer) {
       cacheStatusContainer.style.display = "none"
-    // Hide cache status during loading and start timing
-    if (cacheStatus) {
-      cacheStatus.style.display = "none"
-    }
-    
-    // Store start time for timing-based cache detection
-    window.psiAnalysisStartTime = Date.now()
     }
   } else if (statusData.status === "success") {
     console.log("PSI: Success -", statusData.message, statusData.cached ? "(cached)" : "(fresh)")
@@ -909,29 +900,12 @@ export function updatePSIStatus(statusData) {
     setPSIInsightsLoading(false)
 
     // Show error toast for API errors
-    // Implement timing-based cache detection
-    if (cacheStatus) {
-      const analysisEndTime = Date.now()
-      const startTime = window.psiAnalysisStartTime || analysisEndTime
-      const duration = analysisEndTime - startTime
-      
-      // If analysis took more than 10 seconds, it's fresh; otherwise cached
-      const isFresh = duration > 10000
-      const statusText = isFresh ? "FRESH" : "CACHED"
-      
-      console.log(`PSI analysis took ${duration}ms - showing as ${statusText}`)
-      
-      const cacheStatusText = document.getElementById("cacheStatusText")
-      if (cacheStatusText) {
-        cacheStatusText.textContent = statusText
-        cacheStatusText.className = `cache-status-text ${isFresh ? "fresh" : "cached"}`
-        cacheStatus.style.display = "block"
-      }
-    }
+    const errorMessage = statusData.userMessage || statusData.message || "Analysis failed"
+    showErrorToast(errorMessage, { duration: 5000 })
     
     // Hide cache status on error
     if (cacheStatusContainer) {
-      cacheStatus.style.display = "none"
+      cacheStatusContainer.style.display = "none"
     }
   }
 }
@@ -966,13 +940,6 @@ function updatePSICacheStatus(fromCache) {
   
   if (!cacheStatusContainer || !cacheStatusText) {
     console.log("PSI cache status elements not found")
-    return
-  }
-  
-  // Only show cache status for actual PSI API responses, not restored data
-  if (fromCache === undefined || fromCache === null) {
-    console.log("No cache status provided, hiding indicator")
-    psiCacheStatus.style.display = "none"
     return
   }
   
