@@ -929,6 +929,36 @@ export function handleCompletePSIResults(psiData) {
 }
 
 /**
+ * Updates PSI cache status indicator
+ * @param {boolean} fromCache - Whether PSI data is from cache
+ */
+function updatePSICacheStatus(fromCache) {
+  console.log("=== updatePSICacheStatus called ===", fromCache)
+  
+  const cacheStatusContainer = document.getElementById("psiCacheStatus")
+  const cacheStatusText = document.getElementById("cacheStatusText")
+  
+  if (!cacheStatusContainer || !cacheStatusText) {
+    console.log("PSI cache status elements not found")
+    return
+  }
+  
+  // Show the container
+  cacheStatusContainer.style.display = "flex"
+  
+  // Update text and styling based on cache status
+  if (fromCache === false) {
+    cacheStatusText.textContent = "Fresh"
+    cacheStatusText.className = "cache-status-text fresh"
+  } else {
+    cacheStatusText.textContent = "Cached"
+    cacheStatusText.className = "cache-status-text cached"
+  }
+  
+  console.log("PSI cache status updated:", fromCache === false ? "Fresh" : "Cached")
+}
+
+/**
  * Updates the CLS element preview with enhanced information
  * @param {Object} element - CLS element data
  * @param {number} clsValue - Current CLS value
