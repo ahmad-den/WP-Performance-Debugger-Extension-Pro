@@ -95,5 +95,6 @@
     white-space: nowrap;
     color: var(--primary-color);
     font-weight: 500;
+    max-width: 0; /* Force flex item to shrink */
+    min-width: 0; /* Allow flex item to shrink below content size */
   }
-  
