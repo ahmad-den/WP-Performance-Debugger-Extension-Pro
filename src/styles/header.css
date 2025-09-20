@@ -63,16 +63,17 @@
     font-size: 12px;
     color: var(--text-secondary);
     font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-    word-break: break-all;
     line-height: 1.4;
     display: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
+    width: 100%;
   }
   
   .current-url.visible {
     display: flex;
     align-items: center;
+    max-width: 100%;
   }
   
   .current-url:hover {
@@ -86,6 +87,7 @@
     margin-right: 8px;
     font-family: var(--font-family);
     white-space: nowrap;
+    flex-shrink: 0;
   }
   
   .current-url-value {
@@ -95,6 +97,5 @@
     white-space: nowrap;
     color: var(--primary-color);
     font-weight: 500;
-    max-width: 0; /* Force flex item to shrink */
-    min-width: 0; /* Allow flex item to shrink below content size */
+    min-width: 0;
   }
